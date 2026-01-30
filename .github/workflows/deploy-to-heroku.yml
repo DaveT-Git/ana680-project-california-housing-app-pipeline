@@ -1,0 +1,67 @@
+name: Build Docker image & Deploy to Heroku
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'app.py'
+      - 'templates/**'
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - '.python-version'
+      - 'ca_housing_pipeline.pkl'  # Added for model changes
+  
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+      DOCKERHUB_IMAGE: ${{ secrets.DOCKERHUB_IMAGE }}  # Used for build tagging (e.g., djt84/ca-housing-app:latest)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          heroku --version
+
+      - name: Authenticate Heroku CLI
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku auth:whoami || true
+
+      - name: Ensure Heroku app is on container stack
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku stack:set container -a "${{ secrets.HEROKU_APP_NAME }}"
+
+      - name: Login to Heroku Container Registry
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku container:login
+
+      - name: Build Docker image
+        run: |
+          docker build -t "${DOCKERHUB_IMAGE}" .
+
+      - name: Tag image for Heroku registry
+        run: |
+          docker tag "${DOCKERHUB_IMAGE}" "registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web"
+
+      - name: Push image to Heroku registry
+        run: |
+          docker push "registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web"
+
+      - name: Release on Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku container:release web -a "${{ secrets.HEROKU_APP_NAME }}"

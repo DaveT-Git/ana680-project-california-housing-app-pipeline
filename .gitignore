@@ -1,0 +1,53 @@
+# Python / virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+.pytest_cache/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# MacOS junk
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE / editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter / notebooks (if you ever commit them)
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+*.ipynb  # Optional: Ignore notebooks if they're not part of the core app; commit if used in EDA
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+*.backup
+
+# Dependency management
+Pipfile.lock
+poetry.lock
+requirements.txt.bak
+
+# Testing / coverage
+htmlcov/
+.coverage
+coverage.xml
+
+# CI/CD artifacts
+.github/workflows/*.tmp  # Rare, but for any temp workflow files
+
+# Project-specific (avoid ignoring the model .pkl — commit it!)
+# *.pkl  # Do NOT add this; we need ca_housing_pipeline.pkl in the repo

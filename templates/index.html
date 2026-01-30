@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>California Housing Price Predictor</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      padding: 40px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #ffffff;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .description {
+      text-align: center;
+      color: #444;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+    .form-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .form-row label {
+      width: 180px;
+      font-weight: bold;
+    }
+    .form-row input {
+      flex: 1;
+      padding: 6px 8px;
+      font-size: 14px;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    .prediction {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #2e7d32;   /* green for positive feedback */
+    }
+    .note {
+      font-size: 0.85em;
+      color: #555;
+      margin-top: -6px;
+      margin-bottom: 15px;
+    }
+    .result-note {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 10px;
+    }
+  </style>
+  <script>
+    function clearPrediction() {
+      document.getElementById("prediction").innerText = "";
+    }
+  </script>
+</head>
+<body>
+
+<div class="container">
+  <h2>California Housing Price Predictor</h2>
+
+  <div class="description">
+    This model predicts the <strong>median house value</strong> (in $100,000 units) for California census block groups using a linear regression model.  
+    It is based on the following features from the 1990 California census data:
+    <ul style="text-align:left; margin:15px 0 0 20px; padding-left:0;">
+      <li><strong>MedInc</strong>: Median income in the block group (in tens of thousands of dollars)</li>
+      <li><strong>HouseAge</strong>: Median house age in the block group (in years)</li>
+      <li><strong>AveRooms</strong>: Average number of rooms per household</li>
+      <li><strong>Latitude</strong>: Latitude of the block group (geographic coordinate)</li>
+      <li><strong>Longitude</strong>: Longitude of the block group (geographic coordinate)</li>
+    </ul>
+  </div>
+
+  <form action="{{ url_for('predict') }}" method="POST">
+
+    <div class="form-row">
+      <label>Median Income (MedInc)</label>
+      <input type="number" step="0.01" min="0.5" max="15" name="MedInc"
+             value="{{ values.get('MedInc', '') }}"
+             placeholder="e.g. 8.32"
+             title="Typical range: ~2.0 – 8.0 (higher = wealthier area)"
+             oninput="clearPrediction()" required>
+    </div>
+    <div class="note">Typical range: ~2.0 – 8.0 (in $10,000s)</div>
+
+    <div class="form-row">
+      <label>Average Rooms (AveRooms)</label>
+      <input type="number" step="0.01" min="1" max="20" name="AveRooms"
+             value="{{ values.get('AveRooms', '') }}"
+             placeholder="e.g. 6.0"
+             title="Typical range: ~4.0 – 7.0"
+             oninput="clearPrediction()" required>
+    </div>
+    <div class="note">Typical range: ~4.0 – 7.0</div>
+
+    <div class="form-row">
+      <label>House Age (HouseAge)</label>
+      <input type="number" step="0.1" min="1" max="52" name="HouseAge"
+             value="{{ values.get('HouseAge', '') }}"
+             placeholder="e.g. 30.0"
+             title="Typical range: 15 – 40 years"
+             oninput="clearPrediction()" required>
+    </div>
+    <div class="note">Typical range: 15 – 40 years</div>
+
+    <div class="form-row">
+      <label>Latitude</label>
+      <input type="number" step="0.001" min="32" max="42" name="Latitude"
+             value="{{ values.get('Latitude', '') }}"
+             placeholder="e.g. 37.88"
+             title="California range: ~32.5 – 42.0"
+             oninput="clearPrediction()" required>
+    </div>
+    <div class="note">California range: ~32.5 – 42.0</div>
+
+    <div class="form-row">
+      <label>Longitude</label>
+      <input type="number" step="0.001" min="-124" max="-114" name="Longitude"
+             value="{{ values.get('Longitude', '') }}"
+             placeholder="e.g. -122.23"
+             title="California range: ~-124.3 – -114.1"
+             oninput="clearPrediction()" required>
+    </div>
+    <div class="note">California range: ~-124.3 – -114.1</div>
+
+    <button class="btn" type="submit">Predict House Value</button>
+  </form>
+
+  <div id="prediction" class="prediction">
+    {% if predict %}
+      {{ predict }}
+    {% endif %}
+  </div>
+</div>
+
+</body>
+</html>
