@@ -41,7 +41,6 @@ https://hub.docker.com/r/djt84/ca-housing-app
 ## Detailed Documentation
 For full project narrative, CI/CD pipeline details, troubleshooting notes, visualizations (including California geography with house value clusters), final directory structure diagram, and step-by-step deployment walkthroughs, see:  
 → [Detailed Project README](./README-detailed.md)  
-(or `/docs/README-detailed.md` if moved to a docs folder)
 
 ### Screenshots
 
