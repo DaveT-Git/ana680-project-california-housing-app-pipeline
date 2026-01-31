@@ -17,10 +17,10 @@ While not state-of-the-art (tree-based models reach R² > 0.80), it serves as a 
 ## Importance of Location in California Housing
 Location is one of the most critical drivers of house prices in California due to coastal access, job centers, schools, and topography. The scatterplot below shows median house values by geographic coordinates:
 
-<img width="450" alt="California House Values by Location" src="./assets/ca-geography-house-values.png" />
+<img width="550" alt="California House Values by Location" src="./assets/ca-geography-house-values.png" />
 
 **Key observations:**
-- High-value clusters appear in the **San Francisco Bay Area** (top-left, around lat 37–38, lon -122) and **Los Angeles / Orange County** regions (bottom-right, around lat 33–34, lon -118).
+- High-value clusters (yellow) appear in the **San Francisco Bay Area** (top-left, around lat 37–38, lon -122) and **Los Angeles / Orange County** regions (bottom-right, around lat 33–34, lon -118).
 - Lower values dominate inland and northern rural areas.
 - This geographic pattern justifies keeping **Latitude** and **Longitude** as separate features rather than a single distance metric — a distance-to-SF feature would undervalue LA proximity.
 
@@ -58,13 +58,26 @@ CA-housing-app/
   - Security Group: ports 80 (HTTP), 22 (SSH) open  
   - Auto-start via systemd service
 
-## Detailed Project Discription
+---
+# 📋 Detailed Project Discription
+#### End-to-End MLOps Pipeline: From Model Development to Cloud Deployment 
+---
+## Table of Contents
+* [Problem Definition and Dataset](#problem-definition-and-dataset)
+* [Modeling Approach](#modeling-approach)
+* [Model Performance Summary](#model-performance-summary)
+* [Local Flask Application Setup and Deployment](#local-flask-application-setup-and-deployment)
+* [Docker Containerization and Deployment to Docker Hub](#docker-containerization-and-deployment-to-docker-hub)
+* [GitHub Repository Setup and Heroku Deployment via CI/CD Pipeline](#github-repository-setup-and-heroku-deployment-via-cicd-pipeline)
+* [AWS EC2 Deployment with Docker Compose and Nginx Proxy](#aws-ec2-deployment-with-docker-compose-and-nginx-proxy)
+
 
 ### Problem Definition and Dataset
 
 This project aims to predict **median house values** in California census blocks using demographic and geographic features, addressing the real-world challenge of estimating property values for applications such as real estate appraisal, urban planning, investment analysis, or housing policy evaluation. Accurate predictions are difficult with traditional rule-based or statistical methods alone due to the complex, non-linear interactions among features like income levels, household size, housing age, and geographic location—patterns that are hard to capture manually but emerge clearly in data. 
 
 Machine learning provides the best solution here because it can automatically learn these relationships from historical data, generalize to unseen examples, and improve with more data or features, offering superior predictive power and scalability compared to simpler regression formulas or expert heuristics. The dataset used is the **California Housing dataset**, originally from the 1990 California census and popularized in scikit-learn. It contains **20,640 samples** with 8 input features (e.g., median income, average rooms, latitude/longitude) and a continuous target (median house value in $100,000 units). The dataset is publicly available via scikit-learn (`fetch_california_housing(as_frame=True)`) or directly from the [StatLib repository](https://www.dcc.fc.up.pt/~ltorgo/Regression/cal_housing.html), ensuring easy reproducibility and no external dependencies for this project.
+
 
 ### Modeling Approach
 
@@ -73,6 +86,7 @@ The modeling process follows a standard supervised regression workflow implement
 Outliers in skewed features (MedInc and AveRooms) were handled via **clipping at the 1st and 99th percentiles** to reduce undue influence on the linear fit without discarding data. The data was split into training (70%), validation (15%), and test (15%) sets using a fixed random seed for reproducibility. A Pipeline was constructed to chain `StandardScaler` (to standardize features) with `LinearRegression`, ensuring identical preprocessing during training and inference. The model was trained on the training set, evaluated on validation and test sets using **MSE**, **RMSE**, and **R²** metrics (final test **R² ≈ 0.617**, **RMSE ≈ 0.712**), and serialized as a single `.pkl` file with `joblib`. 
 
 While more advanced models could yield higher accuracy, linear regression was chosen as a simple, interpretable baseline that trains quickly and deploys easily—aligning with the project’s primary emphasis on demonstrating a complete, reproducible **CI/CD pipeline** for model training, containerization (**Docker**), API serving (**Flask**), initial deployment (**Heroku**), and production-like deployment (**AWS EC2 with Nginx proxy**), rather than maximizing predictive accuracy.
+
 
 ### Model Performance Summary
 
@@ -86,6 +100,7 @@ These results indicate that the model explains approximately 57–62% of the var
 
 While these metrics are not state-of-the-art—as more advanced models like Random Forest or Gradient Boosting routinely achieve test R² values of 0.80+ and RMSE below 0.50—the performance is sufficient and appropriate for the goals of this project. This linear regression baseline provides a simple, fast-to-train model that is easy to serialize, version, and deploy consistently across environments, making it an ideal choice for emphasizing **MLOps and DevOps workflows** over cutting-edge machine learning performance.
 
+
 ### Local Flask Application Setup and Deployment 
 
 To make the trained model accessible and testable on a local machine, a simple **Flask** web application was created to serve predictions via a user-friendly web interface. The process begins by organizing the project files: the saved pipeline (`ca_housing_pipeline.pkl`) is placed in the project root, a `templates` folder is created to hold the `index.html` file (which contains the input form, feature descriptions, typical value ranges, and styled prediction output), and an `app.py` file is added to define the Flask routes. 
@@ -93,6 +108,7 @@ To make the trained model accessible and testable on a local machine, a simple *
 The `app.py` script loads the pipeline using `joblib`, sets up a home route to render the form, and handles POST requests to `/predict` by collecting form inputs, converting them into a DataFrame, running them through the pipeline for prediction, and returning a formatted result (showing both the scaled value and an approximate dollar amount, e.g., **$412,300**). Dependencies are managed via a `requirements.txt` file listing Flask, joblib, pandas, numpy, and scikit-learn. 
 
 After installing these, the application is launched by running `python app.py` in the terminal (with the virtual environment activated). This starts a local development server at `http://127.0.0.1:5000`, allowing immediate interaction: users enter values for the five features, submit the form, and see an interpreted prediction displayed below the inputs. This step validates the model's usability in a real application context, confirms consistent inference behavior (including automatic scaling), and provides a convenient way to demonstrate and debug before proceeding to containerization and cloud deployment.
+
 
 ### Docker Containerization and Deployment to Docker Hub
 
@@ -108,6 +124,7 @@ It was then tested by running:
 
 After verifying full functionality at `http://localhost:5000`, the image was pushed to **Docker Hub** using `docker push djt84/ca-housing-app:v1.0`. This step packages the entire application into a single, versioned artifact that can be pulled and run anywhere Docker is available. By publishing to Docker Hub, the image becomes easily accessible for subsequent deployment stages (**Heroku** staging and **AWS EC2** production), demonstrating key principles of containerization and portability central to modern CI/CD pipelines.
 
+
 ### GitHub Repository Setup and Heroku Deployment via CI/CD Pipeline
 
 With the Flask application fully containerized and tested locally, the project was moved to **GitHub** for version control and automated CI/CD. A new repository was created (`ana680-project-ca-housing-app-pipeline`), and all project files—including `app.py`, the `templates/` folder, `Dockerfile`, `requirements.txt`, the saved model pipeline (`ca_housing_pipeline.pkl`), and the GitHub Actions workflow YAML (`.github/workflows/deploy-to-heroku.yml`)—were committed and pushed to the main branch.
@@ -122,6 +139,7 @@ To enable automated deployment, a **GitHub Actions** workflow was configured to 
 Required secrets were added in the repository settings under **Actions Secrets**: `HEROKU_API_KEY`, `HEROKU_APP_NAME`, and `DOCKERHUB_IMAGE`. 
 
 On **Heroku**, a new app was created and set to the container stack. The first push triggered the workflow, successfully deploying the image to the live URL: [https://ca-housing-app-djt84-f1fd66680ef6.herokuapp.com/](https://ca-housing-app-djt84-f1fd66680ef6.herokuapp.com/). Visiting the URL confirmed the predictor interface loaded correctly, validating end-to-end functionality from local development through automated CI/CD to cloud hosting. This pipeline achieves **Continuous Deployment**: any qualifying change committed to `main` automatically updates the live Heroku instance, minimizing manual intervention while ensuring reproducibility—a core objective of this project's MLOps focus.
+
 
 ### AWS EC2 Deployment with Docker Compose and Nginx Proxy
 
@@ -140,6 +158,6 @@ This final deployment highlights **container portability** across different clou
 
 
 ## Acknowledgments
-Built as part of an academic MLOps/DevOps course focusing on reproducible pipelines, containerization, and multi-cloud deployment.
+Built as part of an academic MLOps/DevOps course (ANA680 - ML Deployment, National University) focusing on reproducible pipelines, containerization, and multi-cloud deployment.
 
 
