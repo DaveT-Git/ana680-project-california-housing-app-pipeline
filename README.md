@@ -46,11 +46,11 @@ For full project narrative, CI/CD pipeline details, troubleshooting notes, visua
 ### Screenshots
 
 #### 1. Main Input Form
-<img width="450" alt="California Housing Predictor Form" src="https://github.com/user-attachments/assets/...replace-with-your-screenshot-id..." />
+<img width="450" alt="California Housing Predictor Form" src="./assets/app_blank.png" />
 
 Enter values for the five features and get a predicted median house value.
 
 #### 2. Prediction Result Example
-<img width="450" alt="Prediction Output" src="https://github.com/user-attachments/assets/...replace-with-your-screenshot-id..." />
+<img width="450" alt="Prediction Output" src="./assets/app_filled_in.png" />
 
 Displayed in both scaled units and approximate dollars after submission.
