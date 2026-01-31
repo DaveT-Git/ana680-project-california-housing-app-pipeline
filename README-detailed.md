@@ -17,7 +17,7 @@ While not state-of-the-art (tree-based models reach R² > 0.80), it serves as a 
 ## Importance of Location in California Housing
 Location is one of the most critical drivers of house prices in California due to coastal access, job centers, schools, and topography. The scatterplot below shows median house values by geographic coordinates:
 
-![California House Values by Location](images/ca-geography-house-values.png)
+<img width="450" alt="California House Values by Location" src="./assets/ca-geography-house-values.png" />
 
 **Key observations:**
 - High-value clusters appear in the **San Francisco Bay Area** (top-left, around lat 37–38, lon -122) and **Los Angeles / Orange County** regions (bottom-right, around lat 33–34, lon -118).
